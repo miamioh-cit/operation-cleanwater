@@ -1,0 +1,21 @@
+- name: Update apt cache (Debian/Ubuntu)
+  apt:
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Install base packages (Debian/Ubuntu)
+  apt:
+    name:
+      - python3-pip
+      - python3-venv
+      - curl
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Install python packages needed on GNS3 VM
+  pip:
+    name:
+      - gns3fy
+      - pyyaml
+      - requests
+    executable: pip3

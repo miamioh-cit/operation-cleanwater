@@ -1,0 +1,18 @@
+gateway:
+  bind: 0.0.0.0
+  port: 8000
+
+defaults:
+  modbus_port: 1502
+  s7_port: 1102
+  s7_db: 1
+
+plcs:
+{% for i in range(1, 11) %}
+  - cell: cell{{ "%02d"|format(i) }}
+    pump: pump1
+    ip: 10.10.30.{{ 100 + (i-1)*10 + 1 }}
+  - cell: cell{{ "%02d"|format(i) }}
+    pump: pump2
+    ip: 10.10.30.{{ 100 + (i-1)*10 + 2 }}
+{% endfor %}

@@ -1,0 +1,7 @@
+- hosts: gns3vm
+  become: true
+  roles:
+    - prereqs
+    - build_images
+    - generate_plcs_yaml
+    - deploy_gns3

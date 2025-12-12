@@ -1,0 +1,26 @@
+- name: Ensure repo directory exists
+  file:
+    path: "{{ repo_root }}"
+    state: directory
+
+- name: Copy repo to GNS3 VM
+  copy:
+    src: "{{ playbook_dir }}/../"
+    dest: "{{ repo_root }}/"
+    mode: "0755"
+
+- name: Build PLC pump image
+  community.docker.docker_image:
+    name: plc_pump
+    tag: latest
+    source: build
+    build:
+      path: "{{ repo_root }}/services/plc_pump"
+
+- name: Build gateway image (initial)
+  community.docker.docker_image:
+    name: ot_gateway
+    tag: latest
+    source: build
+    build:
+      path: "{{ repo_root }}/services/gateway"

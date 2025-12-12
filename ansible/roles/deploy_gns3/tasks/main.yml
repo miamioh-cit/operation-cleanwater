@@ -1,0 +1,13 @@
+- name: Deploy topology via gns3fy on the GNS3 VM
+  command: python3 "{{ repo_root }}/gns3/deploy_topology.py"
+  args:
+    chdir: "{{ repo_root }}"
+
+- name: Wait for gateway HMI to respond (from GNS3 VM)
+  shell: |
+    for i in $(seq 1 45); do
+      curl -sf http://10.10.30.10:8000/ >/dev/null && exit 0
+      sleep 1
+    done
+    exit 1
+  changed_when: false

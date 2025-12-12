@@ -1,0 +1,4 @@
+pymodbus==3.2.0
+python-snap7
+fastapi
+uvicorn

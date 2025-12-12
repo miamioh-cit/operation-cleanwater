@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+pyyaml
+pymodbus==3.2.0

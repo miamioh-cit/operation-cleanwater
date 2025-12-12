@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LabShock OT HMI</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="pill">LabShock</span>
+      <span class="site">Oilsprings</span>
+    </div>
+
+    <div class="controls">
+      <label for="cellSelect">Cell</label>
+      <select id="cellSelect"></select>
+      <span id="clock" class="clock"></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card status">
+      <h2>Status</h2>
+      <div class="status-grid">
+        <div class="status-item"><span id="st-conn" class="dot"></span> Connection</div>
+        <div class="status-item"><span id="st-flow" class="dot"></span> Flow Rate</div>
+        <div class="status-item"><span id="st-p1" class="dot"></span> Pump 1</div>
+        <div class="status-item"><span id="st-filters" class="dot"></span> Dirty Filters</div>
+        <div class="status-item"><span id="st-p2" class="dot"></span> Pump 2</div>
+        <div class="status-item"><span id="st-valves" class="dot"></span> Control Valves</div>
+      </div>
+      <div class="small muted" id="errorsBox"></div>
+    </section>
+
+    <section class="card process">
+      <div class="process-header">
+        <h1>OILSPRINGS</h1>
+        <div class="muted">Template-driven OT cell HMI</div>
+      </div>
+
+      <div class="process-grid">
+        <div class="pump card-inset">
+          <div class="pump-title">PUMP 1</div>
+          <div class="pump-metrics">
+            <div><span class="label">Temp</span> <span id="p1-temp" class="value">--</span></div>
+            <div><span class="label">kPa</span> <span id="p1-kpa" class="value">--</span></div>
+          </div>
+
+          <div class="gauge-block">
+            <div class="gauge-label">Pump 1 Speed</div>
+            <canvas id="g1" width="220" height="140"></canvas>
+            <div id="p1-speed" class="gauge-value">--</div>
+          </div>
+        </div>
+
+        <div class="mid card-inset">
+          <div class="gauge-label">Flow Rate</div>
+          <canvas id="gFlow" width="260" height="160"></canvas>
+          <div id="flow" class="gauge-value big">--</div>
+
+          <div class="split">
+            <div class="mini">
+              <div class="gauge-label">Pressure In</div>
+              <canvas id="gPin" width="220" height="140"></canvas>
+              <div id="pin" class="gauge-value">--</div>
+            </div>
+            <div class="mini">
+              <div class="gauge-label">Pressure Out</div>
+              <canvas id="gPout" width="220" height="140"></canvas>
+              <div id="pout" class="gauge-value">--</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pump card-inset">
+          <div class="pump-title">PUMP 2</div>
+          <div class="pump-metrics">
+            <div><span class="label">Temp</span> <span id="p2-temp" class="value">--</span></div>
+            <div><span class="label">kPa</span> <span id="p2-kpa" class="value">--</span></div>
+          </div>
+
+          <div class="gauge-block">
+            <div class="gauge-label">Pump 2 Speed</div>
+            <canvas id="g2" width="220" height="140"></canvas>
+            <div id="p2-speed" class="gauge-value">--</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card data">
+      <h2>Data</h2>
+
+      <div class="chart-block">
+        <div class="chart-title">Flow</div>
+        <canvas id="cFlow" width="360" height="120"></canvas>
+      </div>
+
+      <div class="chart-block">
+        <div class="chart-title">Pressure</div>
+        <canvas id="cPress" width="360" height="120"></canvas>
+      </div>
+
+      <div class="small muted">
+        Gateway: <span id="gwUpdated">--</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

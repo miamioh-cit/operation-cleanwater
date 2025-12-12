@@ -1,0 +1,13 @@
+- name: Render gateway PLC inventory (plcs.yaml)
+  template:
+    src: plcs.yaml.j2
+    dest: "{{ repo_root }}/services/gateway/plcs.yaml"
+    mode: "0644"
+
+- name: Rebuild gateway image to bake updated plcs.yaml
+  community.docker.docker_image:
+    name: ot_gateway
+    tag: latest
+    source: build
+    build:
+      path: "{{ repo_root }}/services/gateway"

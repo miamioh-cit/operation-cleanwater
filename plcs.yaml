@@ -1,0 +1,14 @@
+gateway:
+  bind: 0.0.0.0
+  port: 8000
+defaults:
+  modbus_port: 1502
+  s7_port: 1102
+  s7_db: 1
+plcs:
+  - cell: cell01
+    pump: pump1
+    ip: 10.10.30.101
+  - cell: cell01
+    pump: pump2
+    ip: 10.10.30.102
