@@ -1,5 +1,11 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'python:3.11-slim'
+      // run as root inside the container so pip installs are painless
+      args '-u root:root'
+    }
+  }
 
   parameters {
     string(name: 'GNS3_VM_SSH_IP', defaultValue: '', description: 'IP/hostname of the remote GNS3 VM')
@@ -10,7 +16,6 @@ pipeline {
     ANSIBLE_HOST_KEY_CHECKING = 'False'
     PIP_DISABLE_PIP_VERSION_CHECK = '1'
     PYTHONUNBUFFERED = '1'
-    VENV_DIR = '.venv'
   }
 
   stages {
@@ -70,34 +75,14 @@ EOF
       }
     }
 
-    stage('Create venv + Install Ansible') {
+    stage('Install Ansible (inside container)') {
       steps {
         sh '''
           set -e
-
-          command -v python3 >/dev/null 2>&1 || { echo "python3 not found on Jenkins agent"; exit 1; }
           python3 --version
-
-          # Create a virtualenv. This should provide pip even when system pip is missing.
-          python3 -m venv "${VENV_DIR}" || {
-            echo "ERROR: python3-venv is not available on this Jenkins agent."
-            echo "Fix: install python3-venv on the agent OR run Jenkins with a python container agent."
-            exit 1
-          }
-
-          . "${VENV_DIR}/bin/activate"
-
-          # venv should have pip; if not, fail with a clear message (no sudo)
-          python -m pip --version >/dev/null 2>&1 || {
-            echo "ERROR: pip is not available inside the venv on this agent."
-            echo "Fix: install ensurepip support for this Python build OR use a python container agent."
-            exit 1
-          }
-
-          python -m pip install --upgrade pip
-          python -m pip install "ansible>=9.0.0" "requests>=2.31.0"
+          python3 -m pip install --upgrade pip
+          python3 -m pip install "ansible>=9.0.0" "requests>=2.31.0"
           ansible-galaxy collection install community.docker
-
           ansible --version
         '''
       }
@@ -112,8 +97,6 @@ EOF
         ]) {
           sh '''
             set -e
-            . "${VENV_DIR}/bin/activate"
-
             ansible-playbook -i ansible/inventory.ini ansible/site.yml \
               -e ansible_user=${SSH_USER} \
               --private-key ${SSH_KEYFILE}
