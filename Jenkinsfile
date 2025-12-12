@@ -10,6 +10,7 @@ pipeline {
     ANSIBLE_HOST_KEY_CHECKING = 'False'
     PIP_DISABLE_PIP_VERSION_CHECK = '1'
     PYTHONUNBUFFERED = '1'
+    VENV_DIR = '.venv'
   }
 
   stages {
@@ -31,7 +32,6 @@ pipeline {
       steps {
         sh '''
           set -e
-
           mkdir -p gns3 ansible
 
           cat > gns3/config.yaml <<EOF
@@ -70,51 +70,35 @@ EOF
       }
     }
 
-    stage('Bootstrap Python + Install Ansible') {
+    stage('Create venv + Install Ansible') {
       steps {
         sh '''
           set -e
 
-          echo "== Python =="
           command -v python3 >/dev/null 2>&1 || { echo "python3 not found on Jenkins agent"; exit 1; }
           python3 --version
 
-          # ---- Ensure pip exists ----
-          if ! python3 -m pip --version >/dev/null 2>&1; then
-            echo "pip not found. Attempting python3 -m ensurepip ..."
-            if python3 -m ensurepip --user >/dev/null 2>&1; then
-              echo "ensurepip succeeded."
-            else
-              echo "ensurepip failed. Trying OS package install (Debian/Ubuntu) ..."
-              if command -v apt-get >/dev/null 2>&1; then
-                sudo apt-get update -y
-                sudo apt-get install -y python3-pip
-              else
-                echo "No ensurepip and no apt-get available. Falling back to get-pip.py ..."
-                if command -v curl >/dev/null 2>&1; then
-                  curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-                elif command -v wget >/dev/null 2>&1; then
-                  wget -qO /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
-                else
-                  echo "Neither curl nor wget available to download get-pip.py"
-                  exit 1
-                fi
-                python3 /tmp/get-pip.py --user
-              fi
-            fi
-          fi
+          # Create a virtualenv. This should provide pip even when system pip is missing.
+          python3 -m venv "${VENV_DIR}" || {
+            echo "ERROR: python3-venv is not available on this Jenkins agent."
+            echo "Fix: install python3-venv on the agent OR run Jenkins with a python container agent."
+            exit 1
+          }
 
-          # ---- Upgrade pip + install Ansible ----
-          python3 -m pip install --user --upgrade pip
-          python3 -m pip install --user "ansible>=9.0.0" "requests>=2.31.0"
+          . "${VENV_DIR}/bin/activate"
 
-          # Put user-base bin on PATH so ansible-playbook is found
-          USER_BASE="$(python3 -c 'import site; print(site.USER_BASE)')"
-          export PATH="$USER_BASE/bin:$PATH"
+          # venv should have pip; if not, fail with a clear message (no sudo)
+          python -m pip --version >/dev/null 2>&1 || {
+            echo "ERROR: pip is not available inside the venv on this agent."
+            echo "Fix: install ensurepip support for this Python build OR use a python container agent."
+            exit 1
+          }
 
-          echo "== Ansible =="
-          ansible --version
+          python -m pip install --upgrade pip
+          python -m pip install "ansible>=9.0.0" "requests>=2.31.0"
           ansible-galaxy collection install community.docker
+
+          ansible --version
         '''
       }
     }
@@ -128,9 +112,7 @@ EOF
         ]) {
           sh '''
             set -e
-
-            USER_BASE="$(python3 -c 'import site; print(site.USER_BASE)')"
-            export PATH="$USER_BASE/bin:$PATH"
+            . "${VENV_DIR}/bin/activate"
 
             ansible-playbook -i ansible/inventory.ini ansible/site.yml \
               -e ansible_user=${SSH_USER} \
@@ -142,11 +124,7 @@ EOF
   }
 
   post {
-    success {
-      echo "✅ Deployed. HMI: http://10.10.30.10:8000/ (from OT network)"
-    }
-    failure {
-      echo "❌ Deploy failed — check console output."
-    }
+    success { echo "✅ Deployed. HMI: http://10.10.30.10:8000/ (from OT network)" }
+    failure { echo "❌ Deploy failed — check console output." }
   }
 }
