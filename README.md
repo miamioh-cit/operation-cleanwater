@@ -25,7 +25,7 @@ Ports:
 - PLC Debug HTTP: `8080`
 - Gateway HTTP: `8000`
 
-## Jenkins (Model A – Recommended)
+## Jenkin
 gns3fy runs on the GNS3 VM and uses `http://127.0.0.1:3080`.
 Jenkins uses Ansible to:
 - copy repo to `/opt/ot-industrial-topology`
