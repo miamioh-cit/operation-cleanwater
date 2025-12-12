@@ -1,4 +1,4 @@
-# OT LabShock v1.0 – Code-Defined Industrial OT Topology (GNS3 + Jenkins)
+# OT Lab v1.0 – Code-Defined Industrial OT Topology (GNS3 + Jenkins)
 
 This repo builds a full OT lab **entirely from code**:
 
@@ -28,7 +28,7 @@ Ports:
 ## Jenkins (Model A – Recommended)
 gns3fy runs on the GNS3 VM and uses `http://127.0.0.1:3080`.
 Jenkins uses Ansible to:
-- copy repo to `/opt/ot-labshock`
+- copy repo to `/opt/ot-labs`
 - build Docker images on the GNS3 VM
 - generate `services/gateway/plcs.yaml`
 - run `gns3/deploy_topology.py`
