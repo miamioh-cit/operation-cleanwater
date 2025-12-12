@@ -3,7 +3,7 @@ pipeline {
 
   parameters {
     string(name: 'GNS3_VM_SSH_IP', defaultValue: '', description: 'IP/hostname of the remote GNS3 VM')
-    string(name: 'PROJECT_NAME', defaultValue: 'OT-Labshock-OT', description: 'GNS3 project name')
+    string(name: 'PROJECT_NAME', defaultValue: 'OT-Labs-OT', description: 'GNS3 project name')
   }
 
   environment {
@@ -58,7 +58,7 @@ gns3vm ansible_host=${GNS3_VM_SSH_IP}
 [all:vars]
 ansible_user=gns3
 ansible_python_interpreter=/usr/bin/python3
-repo_root=/opt/ot-labshock
+repo_root=/opt/ot-labs
 EOF
         '''
       }
